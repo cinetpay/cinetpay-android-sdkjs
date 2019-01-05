@@ -1,6 +1,6 @@
 # SDK CinetPay pour Android
 
-<img alt="Demo" src="https://imgur.com/NUlUAIt.png" /> <img alt="Demo" src="https://imgur.com/NUlUAIt.png" />
+<img alt="Demo" src="https://imgur.com/NUlUAIt.png" />
 
 ## Téléchargement
 
