@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.cinetpay.com/cdn/seamless_sdk/latest/cinetpay.prod.min.js"></script>
+
+    <script>
+        function init() {
+
+            CinetPay.setConfig({
+                apikey: Android.getApiKey(),
+                site_id: Android.getSiteId(),
+                notify_url: Android.getNotifyUrl()
+            });
+
+            CinetPay.on('error', function (e) {
+                Android.onError(e.code, e.message);
+            });
+
+            CinetPay.on('signatureCreated', function (token) {
+                console.log('Token généré: ' + token);
+            });
+
+            CinetPay.on('paymentPending', function (e) {
+                console.log(e.code + ' ' + e.message);
+            });
+
+            CinetPay.on('paymentSuccessfull', function (paymentInfo) {
+                Android.onPaymentCompleted(JSON.stringify(paymentInfo));
+            });
+
+            CinetPay.setSignatureData({
+                amount: Android.getAmount(),
+                trans_id: Android.getTransId(),
+                currency: Android.getCurrency(),
+                designation: Android.getDesignation(),
+                custom: Android.getCustom()
+            });
+            
+            CinetPay.getSignature();
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>
