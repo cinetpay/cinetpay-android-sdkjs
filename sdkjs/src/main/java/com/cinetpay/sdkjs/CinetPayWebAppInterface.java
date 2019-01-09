@@ -1,9 +1,11 @@
 package com.cinetpay.sdkjs;
 
+import android.content.Context;
 import android.webkit.JavascriptInterface;
 
 public abstract class CinetPayWebAppInterface {
 
+    private Context mContext;
     private String mApiKey;
     private int mSiteId;
     private String mNotifyUrl;
@@ -14,9 +16,10 @@ public abstract class CinetPayWebAppInterface {
     private String mCustom;
 
 
-    public CinetPayWebAppInterface(String api_key, int site_id, String notify_url,
+    public CinetPayWebAppInterface(Context c, String api_key, int site_id, String notify_url,
                                    String trans_id, int amount, String currency, String designation,
                                    String custom) {
+        mContext = c;
         mApiKey = api_key;
         mSiteId = site_id;
         mNotifyUrl = notify_url;
@@ -25,6 +28,10 @@ public abstract class CinetPayWebAppInterface {
         mCurrency = currency;
         mDesignation = designation;
         mCustom = custom;
+    }
+
+    public final Context getContext() {
+        return mContext;
     }
 
     @JavascriptInterface
