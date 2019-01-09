@@ -1,5 +1,6 @@
 package com.cinetpay.sdkjs.sample;
 
+import android.content.Context;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
@@ -10,10 +11,10 @@ import org.json.JSONObject;
 
 public class MyCinetPayWebAppInterface extends CinetPayWebAppInterface {
 
-    public MyCinetPayWebAppInterface(String api_key, int site_id, String notify_url,
-                                     String trans_id, int amount, String currency,
-                                     String designation, String custom) {
-        super(api_key, site_id, notify_url, trans_id, amount, currency, designation, custom);
+    public MyCinetPayWebAppInterface(Context c, String api_key, int site_id, String notify_url,
+                                     String trans_id, int amount, String currency, String designation,
+                                     String custom) {
+        super(c, api_key, site_id, notify_url, trans_id, amount, currency, designation, custom);
     }
 
     @Override
