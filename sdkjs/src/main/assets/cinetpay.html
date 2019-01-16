@@ -9,37 +9,43 @@
     <script>
         function init() {
 
-            CinetPay.setConfig({
-                apikey: Android.getApiKey(),
-                site_id: Android.getSiteId(),
-                notify_url: Android.getNotifyUrl()
-            });
+            if (Android.isCinetPayContext()) {
 
-            CinetPay.on('error', function (e) {
-                Android.onError(e.code, e.message);
-            });
+                CinetPay.setConfig({
+                    apikey: Android.getApiKey(),
+                    site_id: Android.getSiteId(),
+                    notify_url: Android.getNotifyUrl()
+                });
 
-            CinetPay.on('signatureCreated', function (token) {
-                console.log('Token généré: ' + token);
-            });
+                CinetPay.on('error', function (e) {
+                    Android.onError(e.code, e.message);
+                });
 
-            CinetPay.on('paymentPending', function (e) {
-                console.log(e.code + ' ' + e.message);
-            });
+                CinetPay.on('signatureCreated', function (token) {
+                    console.log('Token généré: ' + token);
+                });
 
-            CinetPay.on('paymentSuccessfull', function (paymentInfo) {
-                Android.onPaymentCompleted(JSON.stringify(paymentInfo));
-            });
+                CinetPay.on('paymentPending', function (e) {
+                    console.log(e.code + ' ' + e.message);
+                });
 
-            CinetPay.setSignatureData({
-                amount: Android.getAmount(),
-                trans_id: Android.getTransId(),
-                currency: Android.getCurrency(),
-                designation: Android.getDesignation(),
-                custom: Android.getCustom()
-            });
-            
-            CinetPay.getSignature();
+                CinetPay.on('paymentSuccessfull', function (paymentInfo) {
+                    Android.onPaymentCompleted(JSON.stringify(paymentInfo));
+                });
+
+                CinetPay.setSignatureData({
+                    amount: Android.getAmount(),
+                    trans_id: Android.getTransId(),
+                    currency: Android.getCurrency(),
+                    designation: Android.getDesignation(),
+                    custom: Android.getCustom()
+                });
+
+                CinetPay.getSignature();
+
+            } else {
+                alert("Vous n'avez pas accès à cette fonctionnalité!");
+            }
         }
     </script>
 </head>

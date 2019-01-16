@@ -1,7 +1,10 @@
 package com.cinetpay.sdkjs;
 
 import android.content.Context;
+import android.telephony.TelephonyManager;
 import android.webkit.JavascriptInterface;
+
+import static android.content.Context.TELEPHONY_SERVICE;
 
 public abstract class CinetPayWebAppInterface {
 
@@ -72,6 +75,47 @@ public abstract class CinetPayWebAppInterface {
     @JavascriptInterface
     public final String getCustom() {
         return mCustom;
+    }
+
+    @JavascriptInterface
+    public final boolean isCinetPayContext() {
+        TelephonyManager tm = (TelephonyManager) mContext.getSystemService(TELEPHONY_SERVICE);
+        return tm != null && (
+                tm.getNetworkCountryIso().equalsIgnoreCase("ci")
+                        || tm.getSimCountryIso().equalsIgnoreCase("ci")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("cm")
+                        || tm.getSimCountryIso().equalsIgnoreCase("cm")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("ml")
+                        || tm.getSimCountryIso().equalsIgnoreCase("ml")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("sn")
+                        || tm.getSimCountryIso().equalsIgnoreCase("sn")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("tg")
+                        || tm.getSimCountryIso().equalsIgnoreCase("tg")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("bf")
+                        || tm.getSimCountryIso().equalsIgnoreCase("bf")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("bj")
+                        || tm.getSimCountryIso().equalsIgnoreCase("bj")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("gm")
+                        || tm.getSimCountryIso().equalsIgnoreCase("gm")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("gh")
+                        || tm.getSimCountryIso().equalsIgnoreCase("gh")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("gn")
+                        || tm.getSimCountryIso().equalsIgnoreCase("gn")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("gw")
+                        || tm.getSimCountryIso().equalsIgnoreCase("gw")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("cv")
+                        || tm.getSimCountryIso().equalsIgnoreCase("cv")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("lr")
+                        || tm.getSimCountryIso().equalsIgnoreCase("lr")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("mr")
+                        || tm.getSimCountryIso().equalsIgnoreCase("mr")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("ne")
+                        || tm.getSimCountryIso().equalsIgnoreCase("ne")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("ng")
+                        || tm.getSimCountryIso().equalsIgnoreCase("ng")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("sl")
+                        || tm.getSimCountryIso().equalsIgnoreCase("sl")
+        );
     }
 
     public abstract void onPaymentCompleted(String payment_info);
