@@ -1,0 +1,162 @@
+## Configuration de l’interface de paiement
+
+Avant de pouvoir faire fonctionner les paiements, vous devez spécifier les paramètres de votre compte marchand (clé API, site ID, URL de notification) et définir une interface entre votre application et CinetPay. Cette interface permet de communiquer à CinetPay les informations de chaque paiement (montant, devise, ID de la transaction...) qu’un utilisateur s’apprête à effectuer.
+
+Pour ce faire, créez une classe qui hérite de la classe `CinetPayWebAppInterface`.
+
+Un exemple ci-dessous:
+
+```java
+public class MyCinetPayWebAppInterface extends CinetPayWebAppInterface {
+
+	public MyCinetPayWebAppInterface(Context c, String api_key, int site_id, String notify_url, String trans_id, int amount, String currency, String designation, String custom) {
+		super(c, api_key, site_id, notify_url, trans_id, amount, currency, designation, custom);
+	}
+
+	@Override
+	@JavascriptInterface
+	public void onPaymentCompleted(String payment_info) {
+	}
+
+	@Override
+	@JavascriptInterface
+	public void onError(String code, String message) {
+	} 
+}
+```
+
+Cette classe contient 2 méthodes dans lesquelles vous pouvez écrire un code qui s’exécutera lorsque le paiement a été effectué (`onPaymentCompleted`) ou lorsqu’une erreur survient lors du paiement (`onError`).
+
+Nous verrons plus tard où et comment appeler cette classe.
+
+La méthode `onError` prend en paramètres le code et le message de l’erreur.
+
+La méthode `onPaymentCompleted` prend en paramètre une chaîne de caractères au format JSON qui contient toutes les informations concernant le paiement effectué. 
+
+La structure de la chaîne se présente ainsi:
+
+```json
+{
+	"cpm_site_id": "",
+	"signature": "", 
+	"cpm_amount": "", 
+	"cpm_trans_date": "", 
+	"cpm_trans_id": "", 
+	"cpm_custom": "", 
+	"cpm_currency": "", 
+	"cpm_payid": "", 
+	"cpm_payment_date": "", 
+	"cpm_payment_time": "", 
+	"cpm_error_message": "", 
+	"payment_method": "", 
+	"cpm_phone_prefixe": "", 
+	"cel_phone_num": "", 
+	"cpm_ipn_ack": "", 
+	"created_at": "", 
+	"updated_at": "", 
+	"cpm_result": "", 
+	"cpm_trans_status": "", 
+	"cpm_designation": "", 
+	"buyer_name": ""
+}
+```
+
+Pour récupérer des éléments de cette chaîne, vous devez donc la convertir en un objet JSON:
+
+```java
+try {
+	JSONObject paymentInfo = new JSONObject(payment_info);
+
+	String cpm_result = paymentInfo.getString("cpm_result");
+	String cpm_trans_status = paymentInfo.getString("cpm_trans_status");
+	String cpm_error_message = paymentInfo.getString("cpm_error_message");
+	String cpm_custom = paymentInfo.getString("cpm_custom");
+
+} catch (JSONException e) { 
+	e.printStackTrace(); 
+}
+```
+
+## Affichage de la page de paiement de CinetPay
+
+Après avoir défini le processus de paiement, vous pouvez maintenant rediriger l’utilisateur vers la page de paiement de CinetPay.
+
+Vous devez d’abord créer une `Activity` qui hérite de `CinetPayActivity`:
+
+```java
+public class MyCinetPayActivity extends CinetPayActivity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) { 
+		super.onCreate(savedInstanceState);
+	} 
+}
+```
+
+Assurez-vous de l’ajouter dans le fichier `AndroidManifest.xml`:
+
+```xml
+<activity android:name=".MyCinetPayActivity" />
+```
+
+Android Studio le fera automatiquement si vous créez l’`Activity` à partir du menu dédié.
+
+Vous devez appeler cette `Activity` à chaque fois qu’un utilisateur déclenche une action de paiement, tout en envoyant ces paramètres:
+
+- **KEY_API_KEY**: votre clé API
+- **KEY_SITE_ID**: votre site ID
+- **KEY_NOTIFY_URL**: votre URL de notification. Vous pouvez laisser ce champ vide.
+- **KEY_TRANS_ID**: l’ID de la transaction. Vous devez la générer de façon dynamique et elle doit être unique.
+- **KEY_AMOUNT**: le montant du paiement.
+- **KEY_CURRENCY**: la devise.
+- **KEY_DESIGNATION**: la désignation qui représente le libellé du paiement.
+- **KEY_CUSTOM**: un contenu personnalisé que vous envoyez à CinetPay qui peut vous servir dans votre gestion. Ce champ peut rester vide.
+
+Exemple:
+
+```java
+String api_key = "MY_API_KEY"; // A remplacer par votre clé API 
+int site_id = 0; // A remplacer par votre Site ID
+String notify_url = "";
+String trans_id = String.valueOf(new Date().getTime());
+int amount = 100 ;
+String currency = "CFA";
+String designation = "Achat test"; 
+String custom = "";
+
+Intent intent = new Intent(MainActivity.this,MyCinetPayActivity.class); 
+intent.putExtra(CinetPayActivity.KEY_API_KEY, api_key); 
+intent.putExtra(CinetPayActivity.KEY_SITE_ID, site_id); 
+intent.putExtra(CinetPayActivity.KEY_NOTIFY_URL, notify_url); 
+intent.putExtra(CinetPayActivity.KEY_TRANS_ID, trans_id); 
+intent.putExtra(CinetPayActivity.KEY_AMOUNT, amount); 
+intent.putExtra(CinetPayActivity.KEY_CURRENCY, currency); 
+intent.putExtra(CinetPayActivity.KEY_DESIGNATION, designation); 
+intent.putExtra(CinetPayActivity.KEY_CUSTOM, custom);
+startActivity(intent);
+```
+
+Enfin, vous devez récupérer ces paramètres dans votre `Activity` préalablement créée (`MyCInetPayActivity` ici) et les passer à la classe qui hérite de `CinetPayWebAppInterface` (`MyCinetPayWebAppInterface` ici).
+
+```java
+public class MyCinetPayActivity extends CinetPayActivity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		Intent intent = getIntent();
+
+		String api_key = intent.getStringExtra(KEY_API_KEY);
+		int site_id = intent.getIntExtra(KEY_SITE_ID, 0);
+		String notify_url = intent.getStringExtra(KEY_NOTIFY_URL);
+		String trans_id = intent.getStringExtra(KEY_TRANS_ID);
+		int amount = intent.getIntExtra(KEY_AMOUNT, 0);
+		String currency = intent.getStringExtra(KEY_CURRENCY);
+		String designation = intent.getStringExtra(KEY_DESIGNATION);
+		String custom = intent.getStringExtra(KEY_CUSTOM);
+
+		mWebView.addJavascriptInterface(new MyCinetPayWebAppInterface(this, api_key, site_id, notify_url, trans_id, amount, currency, designation, custom), "Android");
+	}
+}
+```
+
+Le `mWebView` vient de `CinetPayActivity`. Vous y avez accès parce que votre `Activity` hérite de `CinetPayActivity`. Notez que vous ne devez pas définir de layout pour `MyCinetPayActivity`.
