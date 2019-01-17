@@ -130,7 +130,7 @@ intent.putExtra(CinetPayActivity.KEY_NOTIFY_URL, notify_url);
 intent.putExtra(CinetPayActivity.KEY_TRANS_ID, trans_id); 
 intent.putExtra(CinetPayActivity.KEY_AMOUNT, amount); 
 intent.putExtra(CinetPayActivity.KEY_CURRENCY, currency); 
-intent.putExtra(CinetPayActivity.KEY_DESIGNATION, designation); 
+intent.putExtra(CinetPayActivity.KEY_DESIGNATION, designation);
 intent.putExtra(CinetPayActivity.KEY_CUSTOM, custom);
 startActivity(intent);
 ```
