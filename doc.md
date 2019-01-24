@@ -1,3 +1,5 @@
+# Documentation
+
 ## Configuration de l’interface de paiement
 
 Avant de pouvoir faire fonctionner les paiements, vous devez spécifier les paramètres de votre compte marchand (clé API, site ID, URL de notification) et définir une interface entre votre application et CinetPay. Cette interface permet de communiquer à CinetPay les informations de chaque paiement (montant, devise, ID de la transaction...) qu’un utilisateur s’apprête à effectuer.
@@ -9,8 +11,8 @@ Un exemple ci-dessous:
 ```java
 public class MyCinetPayWebAppInterface extends CinetPayWebAppInterface {
 
-	public MyCinetPayWebAppInterface(Context c, String api_key, int site_id, String notify_url, String trans_id, int amount, String currency, String designation, String custom) {
-		super(c, api_key, site_id, notify_url, trans_id, amount, currency, designation, custom);
+	public MyCinetPayWebAppInterface(Context c, String api_key, int site_id, String notify_url, String trans_id, int amount, String currency, String designation, String custom, boolean should_check_payment) {
+		super(c, api_key, site_id, notify_url, trans_id, amount, currency, designation, custom, boolean should_check_payment);
 	}
 
 	@Override
@@ -21,17 +23,33 @@ public class MyCinetPayWebAppInterface extends CinetPayWebAppInterface {
 	@Override
 	@JavascriptInterface
 	public void onError(String code, String message) {
-	} 
+	}
+
+	@Override
+    @JavascriptInterface
+    public void terminatePending(String apikey, int cpm_site_id, String cpm_trans_id) {
+    }
+
+    @Override
+    @JavascriptInterface
+    public void terminateSuccess(String payment_info) {
+    }
+
+    @Override
+    @JavascriptInterface
+    public void terminateFailed(String apikey, int cpm_site_id, String cpm_trans_id) {
+    }
+
+    @Override
+    @JavascriptInterface
+    public void checkPayment(String apikey, int cpm_site_id, String cpm_trans_id) {
+    }
 }
 ```
 
-Cette classe contient 2 méthodes dans lesquelles vous pouvez écrire un code qui s’exécutera lorsque le paiement a été effectué (`onPaymentCompleted`) ou lorsqu’une erreur survient lors du paiement (`onError`).
+Cette classe contient des méthodes qui sont déclenchées en fonction de certains événements:
 
-Nous verrons plus tard où et comment appeler cette classe.
-
-La méthode `onError` prend en paramètres le code et le message de l’erreur.
-
-La méthode `onPaymentCompleted` prend en paramètre une chaîne de caractères au format JSON qui contient toutes les informations concernant le paiement effectué. 
+- `onPaymentCompleted`: S'exécute lorsque le paiement est terminé. Elle prend en paramètre une chaîne de caractères au format JSON qui contient toutes les informations concernant le paiement effectué.
 
 La structure de la chaîne se présente ainsi:
 
@@ -61,7 +79,9 @@ La structure de la chaîne se présente ainsi:
 }
 ```
 
-Pour récupérer des éléments de cette chaîne, vous devez donc la convertir en un objet JSON:
+Pour plus d'informations sur la signification de chaque paramètre, consultez le document [Réussir l'intégration CinetPay](https://cinetpay.com/downloads/Reussir_l_integration_CinetPay_v1.6.0.pdf).
+
+Pour récupérer des éléments de cette chaîne, vous devez donc la convertir en un objet JSON comme dans l'exemple ci-dessous:
 
 ```java
 try {
@@ -76,6 +96,18 @@ try {
 	e.printStackTrace(); 
 }
 ```
+
+- `onError`: S'exécute lorsqu'une erreur survient. Elle prend en paramètres le code et le message de l’erreur.
+
+- `terminatePending`: S'exécute lorsque l'utilisateur appuie sur le bouton `Annuler` après avoir initié un paiement sans valider (la validation dont on parle ici est le fait de saisir son code secret sur ton téléphone lors de la dernière étape du paiement, dans le cas de MTN et Moov). Le bouton `Annuler` s'affiche lorsque l'utilisateur clique sur `Fermer` dans la fenêtre de paiement CinetPay. La méthode prend en paramètres: `apikey` (votre clé API), `cpm_site_id` (votre site ID), `cpm_trans_id` (l'ID de transaction que vous avez généré pour le paiement en question). Ces paramètres vous sont transmis pour vous permettre de vérifier le statut final du paiement car l'utilisateur peut confirmer le paiement après avoir quitté la fenêtre de paiement de CinetPay. Pour vérifier le statut final du paiement, vous devez envoyer par POST les paramètres suivants: `apikey`, `cpm_site_id` et `cpm_trans_id` à cette URL: `https://api.cinetpay.com/v1/?method=checkPayStatus`. Pour plus d'informations sur les éléments retournés, consultez le document [Réussir l'intégration CinetPay](https://cinetpay.com/downloads/Reussir_l_integration_CinetPay_v1.6.0.pdf).
+
+- `terminateSuccess`: S'exécute lorsque l'utilisateur appuie sur le bouton `Terminer`. Le bouton `Terminer` s'affiche lorsque l'utilisateur clique sur `Fermer` dans la fenêtre de paiement CinetPay après avoir effectué son paiement. La méthode prend en paramètre une chaîne de caractères au format JSON qui contient toutes les informations concernant le paiement effectué, la même que celle dans `onPaymentCompleted`.
+
+- `terminateFailed`: S'exécute lorsque l'utilisateur appuie sur le bouton `Terminer` après une erreur survenue. Le bouton `Terminer` s'affiche lorsque l'utilisateur clique sur `Fermer` dans la fenêtre de paiement CinetPay. La méthode prend en paramètres: `apikey` (votre clé API), `cpm_site_id` (votre site ID), `cpm_trans_id` (l'ID de transaction que vous avez généré pour le paiement en question). Ces paramètres vous sont transmis pour vous permettre de vérifier le statut final du paiement. Pour vérifier le statut final du paiement, vous devez envoyer par POST les paramètres suivants: `apikey`, `cpm_site_id` et `cpm_trans_id` à cette URL: `https://api.cinetpay.com/v1/?method=checkPayStatus`. Pour plus d'informations sur les éléments retournés, consultez le document [Réussir l'intégration CinetPay](https://cinetpay.com/downloads/Reussir_l_integration_CinetPay_v1.6.0.pdf).
+
+- `checkPayment`: S'exécute lorsque l'utilisateur clique sur le bouton `Vérifier le paiement`. Le bouton `Vérifier le paiement` s'affiche (si vous avez mis le paramètre `should_check_payment` à `true` à l'instanciation de votre classe qui hérite de `CinetPayWebAppInterface`) lorsque l'utilisateur clique sur `Fermer` dans la fenêtre de paiement CinetPay après avoir initié un paiement sans valider (la validation dont on parle ici est le fait de saisir son code secret sur ton téléphone lors de la dernière étape du paiement, dans le cas de MTN et Moov). La méthode prend en paramètres: `apikey` (votre clé API), `cpm_site_id` (votre site ID), `cpm_trans_id` (l'ID de transaction que vous avez généré pour le paiement en question). Pour vérifier le statut final du paiement, vous devez envoyer par POST les paramètres suivants: `apikey`, `cpm_site_id` et `cpm_trans_id` à cette URL: `https://api.cinetpay.com/v1/?method=checkPayStatus`. Pour plus d'informations sur les éléments retournés, consultez le document [Réussir l'intégration CinetPay](https://cinetpay.com/downloads/Reussir_l_integration_CinetPay_v1.6.0.pdf).
+
+Nous verrons plus tard où et comment appeler cette classe.
 
 ## Affichage de la page de paiement de CinetPay
 
@@ -154,7 +186,7 @@ public class MyCinetPayActivity extends CinetPayActivity {
 		String designation = intent.getStringExtra(KEY_DESIGNATION);
 		String custom = intent.getStringExtra(KEY_CUSTOM);
 
-		mWebView.addJavascriptInterface(new MyCinetPayWebAppInterface(this, api_key, site_id, notify_url, trans_id, amount, currency, designation, custom), "Android");
+		mWebView.addJavascriptInterface(new MyCinetPayWebAppInterface(this, api_key, site_id, notify_url, trans_id, amount, currency, designation, custom, true), "Android");
 	}
 }
 ```

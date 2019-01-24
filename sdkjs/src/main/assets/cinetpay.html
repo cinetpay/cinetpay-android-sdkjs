@@ -4,10 +4,157 @@
     <title></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://www.cinetpay.com/cdn/seamless_sdk/latest/cinetpay.prod.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <style>
+        .cont {
+            padding-top: 15%;
+            text-align: center;
+        }
 
-    <script>
+        .info {
+            padding: 30px;
+            padding-bottom: 0px;
+        }
+
+        .padding {
+            padding: 40px;
+        }
+
+        .spinner {
+            margin: 10px auto 0;
+            width: 70px;
+            text-align: center;
+        }
+
+        .spinner > div {
+            width: 18px;
+            height: 18px;
+            background-color: #333;
+            border-radius: 100%;
+            display: inline-block;
+            -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+            animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+        }
+
+        .spinner .bounce1 {
+            -webkit-animation-delay: -0.32s;
+            animation-delay: -0.32s;
+        }
+
+        .spinner .bounce2 {
+            -webkit-animation-delay: -0.16s;
+            animation-delay: -0.16s;
+        }
+
+        @-webkit-keyframes sk-bouncedelay {
+            0%, 80%, 100% { -webkit-transform: scale(0) }
+            40% { -webkit-transform: scale(1.0) }
+        }
+
+        @keyframes sk-bouncedelay {
+            0%, 80%, 100% {
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+            40% {
+                -webkit-transform: scale(1.0);
+                transform: scale(1.0);
+            }
+        }
+
+        .success { background-color: #08b838; }
+        .text-center { text-align: center; }
+        .bad { background-color: #a20000; }
+    </style>
+    <script src="https://www.cinetpay.com/cdn/seamless_sdk/latest/cinetpay.prod.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js"></script>
+</head>
+<body onload="init()">
+
+<div id="pending" class="cont">
+    <img src="cinetpay.png" width="150px">
+    <h4 id="info_text" class="info">Initialisation du paiement</h4>
+    <br><br>
+    <div class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+
+    <div class="padding">
+        <br><br>
+        <button id="check_payment_pending" type="button" class="check_payment btn btn-outline-secondary btn-lg btn-block" style="display:none">Vérifier le paiement</button>
+        <button id="terminate_pending" type="button" class="btn btn-danger btn-lg btn-block">Annuler</button>
+    </div>
+</div>
+
+<div id="success" style="display:none">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col text-center success">
+                <div class="padding">
+                    <img src="success.svg" width="100px" />
+                </div>
+            </div>
+            <div class="col">
+                <h4 class="info text-center">Paiement effectué</h4>
+                <table class="table">
+                    <tbody>
+                    <tr>
+                        <th scope="row">Total payé</th>
+                        <th class="amount" scope="row"></th>
+                    </tr>
+                    </tbody>
+                </table>
+                <p><strong>ID Service:</strong> <span class="site_id"></span></p>
+                <p><strong>No Facture:</strong> <span class="transaction_id"></span></p>
+                <p><strong>Désignation:</strong> <span class="designation"></span></p>
+                <p><strong>ID Paiement:</strong> <span class="pay_id"></span></p>
+                <p><strong>Date de paiement:</strong> <span class="date"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="padding">
+        <button id="terminate_success" type="button" class="btn btn-success btn-lg btn-block">Terminer</button>
+    </div>
+</div>
+
+<div id="failed" style="display:none">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col text-center bad">
+                <div class="padding">
+                    <img src="cancel.svg" width="100px" />
+                </div>
+            </div>
+            <div class="col">
+                <h4 class="info text-center">Paiement échoué</h4>
+            </div>
+        </div>
+    </div>
+    <div class="padding">
+        <button id="check_payment_failed" type="button" class="check_payment btn btn-outline-secondary btn-lg btn-block">Vérifier le paiement</button>
+        <button id="terminate_failed" type="button" class="btn btn-danger btn-lg btn-block">Terminer</button>
+    </div>
+</div>
+
+<script>
+        var payInfo = "";
+
+        var amountClasses = document.querySelectorAll(".amount");
+        var siteIdClasses = document.querySelectorAll(".site_id");
+        var transactionIdClasses = document.querySelectorAll(".transaction_id");
+        var designationClasses = document.querySelectorAll(".designation");
+        var payIdClasses = document.querySelectorAll(".pay_id");
+        var dateClasses = document.querySelectorAll(".date");
+
         function init() {
+
+            var pendingElement = document.getElementById("pending");
+            var successElement = document.getElementById("success");
+            var failedElement = document.getElementById("failed");
+            var checkPaymentFailedElement = document.getElementById("check_payment_failed");
 
             if (Android.isCinetPayContext()) {
 
@@ -17,20 +164,106 @@
                     notify_url: Android.getNotifyUrl()
                 });
 
-                CinetPay.on('error', function (e) {
+                CinetPay.on("error", function (e) {
+                    pendingElement.style.display = "none";
+                    successElement.style.display = "none";
+                    failedElement.style.display = "block";
+                    checkPaymentFailedElement.style.display = "none";
+
                     Android.onError(e.code, e.message);
                 });
 
-                CinetPay.on('signatureCreated', function (token) {
-                    console.log('Token généré: ' + token);
+                CinetPay.on("signatureCreated", function (token) {
+                    console.log("Token généré: " + token);
+                    document.getElementById("info_text").textContent = "En attente de validation du paiement";
                 });
 
-                CinetPay.on('paymentPending', function (e) {
+                CinetPay.on("paymentPending", function (e) {
                     console.log(e.code + ' ' + e.message);
                 });
 
-                CinetPay.on('paymentSuccessfull', function (paymentInfo) {
-                    Android.onPaymentCompleted(JSON.stringify(paymentInfo));
+                CinetPay.on("paymentSuccessfull", function (paymentInfo) {
+
+                    if (paymentInfo.cpm_result === "00") {
+
+                        pendingElement.style.display = "none";
+                        successElement.style.display = "block";
+                        failedElement.style.display = "none";
+
+                        for (var i = 0; i < amountClasses.length; i++) {
+                            amountClasses[i].textContent = paymentInfo.cpm_amount + " " + paymentInfo.cpm_currency;
+                        }
+
+                        for (var i = 0; i < siteIdClasses.length; i++) {
+                            siteIdClasses[i].textContent = paymentInfo.cpm_site_id;
+                        }
+
+                        for (var i = 0; i < transactionIdClasses.length; i++) {
+                            transactionIdClasses[i].textContent = paymentInfo.cpm_trans_id;
+                        }
+
+                        for (var i = 0; i < designationClasses.length; i++) {
+                            designationClasses[i].textContent = paymentInfo.cpm_designation;
+                        }
+
+                        for (var i = 0; i < payIdClasses.length; i++) {
+                            payIdClasses[i].textContent = paymentInfo.cpm_payid;
+                        }
+
+                        for (var i = 0; i < dateClasses.length; i++) {
+                            dateClasses[i].textContent = moment(paymentInfo.cpm_payment_date + " " + paymentInfo.cpm_payment_time).format("DD/MM/YYYY HH:mm:ss");
+                        }
+
+                    } else if (paymentInfo.cpm_result === "607" || paymentInfo.cpm_result === "623") {
+
+                        pendingElement.style.display = "block";
+                        successElement.style.display = "none";
+                        failedElement.style.display = "none";
+
+                        if (Android.getShouldCheckPayment()) {
+                            document.getElementById("check_payment_pending").style.display = "block";
+                        }
+
+                    } else if (paymentInfo.cpm_result === "" || paymentInfo.cpm_error_message === "User Cancel Payment") {
+
+                        pendingElement.style.display = "none";
+                        successElement.style.display = "none";
+                        failedElement.style.display = "block";
+                        checkPaymentFailedElement.style.display = "none";
+
+                    } else {
+                        pendingElement.style.display = "none";
+                        successElement.style.display = "none";
+                        failedElement.style.display = "block";
+
+                        for (var i = 0; i < amountClasses.length; i++) {
+                            amountClasses[i].textContent = paymentInfo.cpm_amount + " " + paymentInfo.cpm_currency;
+                        }
+
+                        for (var i = 0; i < siteIdClasses.length; i++) {
+                            siteIdClasses[i].textContent = paymentInfo.cpm_site_id;
+                        }
+
+                        for (var i = 0; i < transactionIdClasses.length; i++) {
+                            transactionIdClasses[i].textContent = paymentInfo.cpm_trans_id;
+                        }
+
+                        for (var i = 0; i < designationClasses.length; i++) {
+                            designationClasses[i].textContent = paymentInfo.cpm_designation;
+                        }
+
+                        for (var i = 0; i < payIdClasses.length; i++) {
+                            payIdClasses[i].textContent = paymentInfo.cpm_payid;
+                        }
+
+                        for (var i = 0; i < dateClasses.length; i++) {
+                            dateClasses[i].textContent = moment(paymentInfo.cpm_payment_date + " " + paymentInfo.cpm_payment_time).format("DD/MM/YYYY HH:mm:ss");
+                        }
+                    }
+
+                    payInfo = JSON.stringify(paymentInfo);
+
+                    Android.onPaymentCompleted(payInfo);
                 });
 
                 CinetPay.setSignatureData({
@@ -44,11 +277,42 @@
                 CinetPay.getSignature();
 
             } else {
+                pendingElement.style.display = "none";
+                successElement.style.display = "none";
+                failedElement.style.display = "none";
+
                 alert("Vous n'avez pas accès à cette fonctionnalité!");
             }
         }
+
+        function terminatePending() {
+            Android.terminatePending(Android.getApiKey(), Android.getSiteId(), Android.getTransId());
+        }
+
+        function terminateSuccess() {
+            Android.terminateSuccess(payInfo);
+        }
+
+        function terminateFailed() {
+            Android.terminateFailed(Android.getApiKey(), Android.getSiteId(), Android.getTransId());
+        }
+
+        function checkPayment() {
+            Android.checkPayment(Android.getApiKey(), Android.getSiteId(), Android.getTransId());
+        }
+
+        document.getElementById("terminate_pending").addEventListener("click", terminatePending, false);
+        document.getElementById("terminate_success").addEventListener("click", terminateSuccess, false);
+        document.getElementById("terminate_failed").addEventListener("click", terminateFailed, false);
+
+        var checkPaymentClasses = document.querySelectorAll(".check_payment");
+
+        for (var i = 0; i < checkPaymentClasses.length; i++) {
+            checkPaymentClasses[i].addEventListener("click", checkPayment, false);
+            if (!Android.getShouldCheckPayment()) {
+                checkPaymentClasses[i].style.display = "none";
+            }
+        }
     </script>
-</head>
-<body onload="init()">
 </body>
 </html>

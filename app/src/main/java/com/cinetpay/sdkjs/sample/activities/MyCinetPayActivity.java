@@ -24,7 +24,7 @@ public class MyCinetPayActivity extends CinetPayActivity {
         String custom = intent.getStringExtra(KEY_CUSTOM);
 
         mWebView.addJavascriptInterface(new MyCinetPayWebAppInterface(this, api_key, site_id, notify_url,
-                trans_id, amount, currency, designation, custom), "Android");
+                trans_id, amount, currency, designation, custom, true), "Android");
     }
 
 }

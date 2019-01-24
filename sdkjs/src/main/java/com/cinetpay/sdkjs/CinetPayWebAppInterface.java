@@ -17,11 +17,12 @@ public abstract class CinetPayWebAppInterface {
     private String mCurrency;
     private String mDesignation;
     private String mCustom;
+    private boolean mShouldCheckPayment;
 
 
     public CinetPayWebAppInterface(Context c, String api_key, int site_id, String notify_url,
                                    String trans_id, int amount, String currency, String designation,
-                                   String custom) {
+                                   String custom, boolean should_check_payment) {
         mContext = c;
         mApiKey = api_key;
         mSiteId = site_id;
@@ -31,6 +32,7 @@ public abstract class CinetPayWebAppInterface {
         mCurrency = currency;
         mDesignation = designation;
         mCustom = custom;
+        mShouldCheckPayment = should_check_payment;
     }
 
     public final Context getContext() {
@@ -78,6 +80,11 @@ public abstract class CinetPayWebAppInterface {
     }
 
     @JavascriptInterface
+    public final boolean getShouldCheckPayment() {
+        return mShouldCheckPayment;
+    }
+
+    @JavascriptInterface
     public final boolean isCinetPayContext() {
         TelephonyManager tm = (TelephonyManager) mContext.getSystemService(TELEPHONY_SERVICE);
         return tm != null && (
@@ -121,5 +128,13 @@ public abstract class CinetPayWebAppInterface {
     public abstract void onPaymentCompleted(String payment_info);
 
     public abstract void onError(String code, String message);
+
+    public abstract void terminatePending(String apikey, int cpm_site_id, String cpm_trans_id);
+
+    public abstract void terminateSuccess(String payment_info);
+
+    public abstract void terminateFailed(String apikey, int cpm_site_id, String cpm_trans_id);
+
+    public abstract void checkPayment(String apikey, int cpm_site_id, String cpm_trans_id);
 
 }
