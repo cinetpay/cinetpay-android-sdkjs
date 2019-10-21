@@ -8,7 +8,7 @@ Ajoutez la librairie comme dépendance dans votre fichier build.gradle.
 
 ```groovy
 dependencies {
-    implementation 'com.cinetpay:sdkjs:2.0.0'
+    implementation 'com.cinetpay:sdkjs:2.1.0'
 }
 ```
 
@@ -19,4 +19,4 @@ Le dossier [app](https://github.com/cinetpay/cinetpay-android-sdkjs/tree/master/
 ## Liens utiles
 
 - [Documentation du SDK Android](./doc.md)
-- [Réussir l'intégration CinetPay](https://cinetpay.com/downloads/Reussir_l_integration_CinetPay_v1.6.0.pdf)
+- [Documentation de l'API de paiement CinetPay](https://cinetpay.com/developer/api/paiement)

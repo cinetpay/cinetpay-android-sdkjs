@@ -122,6 +122,22 @@ public abstract class CinetPayWebAppInterface {
                         || tm.getSimCountryIso().equalsIgnoreCase("ng")
                         || tm.getNetworkCountryIso().equalsIgnoreCase("sl")
                         || tm.getSimCountryIso().equalsIgnoreCase("sl")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("ao")
+                        || tm.getSimCountryIso().equalsIgnoreCase("ao")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("ga")
+                        || tm.getSimCountryIso().equalsIgnoreCase("ga")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("gq")
+                        || tm.getSimCountryIso().equalsIgnoreCase("gq")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("cf")
+                        || tm.getSimCountryIso().equalsIgnoreCase("cf")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("cd")
+                        || tm.getSimCountryIso().equalsIgnoreCase("cd")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("cg")
+                        || tm.getSimCountryIso().equalsIgnoreCase("cg")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("st")
+                        || tm.getSimCountryIso().equalsIgnoreCase("st")
+                        || tm.getNetworkCountryIso().equalsIgnoreCase("td")
+                        || tm.getSimCountryIso().equalsIgnoreCase("td")
         );
     }
 
