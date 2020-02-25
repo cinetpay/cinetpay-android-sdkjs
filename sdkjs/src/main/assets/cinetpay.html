@@ -156,7 +156,7 @@
             var failedElement = document.getElementById("failed");
             var checkPaymentFailedElement = document.getElementById("check_payment_failed");
 
-            if (Android.isCinetPayContext()) {
+            //if (Android.isCinetPayContext()) {
 
                 CinetPay.setConfig({
                     apikey: Android.getApiKey(),
@@ -276,13 +276,13 @@
 
                 CinetPay.getSignature();
 
-            } else {
+            /*} else {
                 pendingElement.style.display = "none";
                 successElement.style.display = "none";
                 failedElement.style.display = "none";
 
                 alert("Vous n'avez pas accès à cette fonctionnalité!");
-            }
+            }*/
         }
 
         function terminatePending() {
