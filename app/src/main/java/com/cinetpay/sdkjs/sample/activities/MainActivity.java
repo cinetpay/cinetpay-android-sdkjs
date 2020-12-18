@@ -38,11 +38,11 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Veuillez entrer un montant SVP",
                             Toast.LENGTH_SHORT).show();
                 } else {
-                    String api_key = "MY_API_KEY"; // A remplacer par votre clé API
-                    int site_id = 0; // A remplacer par votre Site ID
+                    String api_key = "API_KEY"; // TODO A remplacer par votre clé API
+                    int site_id = 445160; // TODO A remplacer par votre Site ID
                     String notify_url = "";
                     String trans_id = String.valueOf(new Date().getTime());
-                    String currency = "CFA";
+                    String currency = "XAF";
                     String designation = "Achat test";
                     String custom = "";
 
