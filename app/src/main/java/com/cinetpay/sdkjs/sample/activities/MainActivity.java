@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
                     int site_id = 445160; // TODO A remplacer par votre Site ID
                     String notify_url = "";
                     String trans_id = String.valueOf(new Date().getTime());
-                    String currency = "XAF";
+                    String currency = "XOF";
                     String designation = "Achat test";
                     String custom = "";
 
